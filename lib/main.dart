@@ -32,7 +32,6 @@ class _MyHomePageState extends State<MyHomePage> {
       .toList();
   @override
   Widget build(BuildContext context) {
-    int key = 0;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -46,13 +45,10 @@ class _MyHomePageState extends State<MyHomePage> {
               StreamBuilder<int>(
                   stream: breathStream(),
                   builder: (_, snapshot) {
-                    key++;
-                    return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: snapshot.hasData
-                            ? BreathWidget(key: ValueKey(key), step: snapshot.data)
-                            : Container(color: Colors.white)
-                    );
+                    if (!snapshot.hasData) {
+                      return Container(color: Colors.white);
+                    }
+                    return BreathWidget(step: snapshot.data);
                   }
               ),
             ],
@@ -104,18 +100,36 @@ class BreathWidget extends StatefulWidget {
 class _BreathWidgetState extends State<BreathWidget>
     with SingleTickerProviderStateMixin {
 
+  int previous;
+  @override
+  void initState() {
+    previous = widget.step;
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant BreathWidget oldWidget) {
+    previous = oldWidget.step;
+    super.didUpdateWidget(oldWidget);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-        curve: Curves.easeInOutCirc,
-        vsync: this,
-        duration: const Duration(milliseconds: 300),
-        child: CustomPaint(
+    return TweenAnimationBuilder<int>(
+      duration: Duration(milliseconds: 400),
+      tween: StepTween(
+        begin: previous,
+        end: widget.step,
+      ),
+      curve: Curves.easeInOut,
+      builder: (BuildContext _, int size, Widget child) {
+        return CustomPaint(
           painter: GradientCirclePainter(
-              radius: widget.step,
-              width: widget.step.toDouble()
+              radius: size,
+              width: size.toDouble()
           ),
-        )
+        );
+      },
     );
   }
 
