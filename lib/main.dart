@@ -116,7 +116,7 @@ class _BreathWidgetState extends State<BreathWidget>
   @override
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<int>(
-      duration: Duration(milliseconds: 400),
+      duration: animationDuration,
       tween: StepTween(
         begin: previous,
         end: widget.step,
@@ -164,8 +164,10 @@ class GradientCirclePainter extends CustomPainter {
   }
 }
 
+Duration animationDuration = Duration(milliseconds: 400);
+
 Stream<int> breathStream() {
   final flow = [1,10,15,20,22,28,40,43,45,57,60,63,69,82,88,90,92,95,100];
-  return Stream.periodic(Duration(milliseconds: 400), (i) => flow[i])
+  return Stream.periodic(animationDuration, (i) => flow[i])
       .take(flow.length);
 }
